@@ -1,6 +1,6 @@
 
 import { Alert, AlertConfig, Projeto } from '@/types';
-import { mockEmpreendedores, mockEmpreendimentos } from './mockData';
+import { mockEmpreendedores } from './mockData';
 
 export const calculateDaysUntilExpiry = (date: Date): number => {
   const today = new Date();
@@ -15,11 +15,13 @@ export const generateAlerts = (
   const alerts: Alert[] = [];
 
   projetos.forEach(projeto => {
-    const empreendimento = mockEmpreendimentos.find(
-      emp => emp.id === projeto.empreendimentoId
+    // Busca hierárquica: empreendedor > empreendimento > projeto
+    const empreendedor = mockEmpreendedores.find(emp => 
+      emp.empreendimentos.some(empr => empr.id === projeto.empreendimentoId)
     );
-    const empreendedor = mockEmpreendedores.find(
-      emp => emp.id === empreendimento?.empreendedorId
+    
+    const empreendimento = empreendedor?.empreendimentos.find(
+      empr => empr.id === projeto.empreendimentoId
     );
 
     if (!empreendimento || !empreendedor) return;
@@ -54,4 +56,17 @@ export const generateAlerts = (
   });
 
   return alerts.sort((a, b) => a.diasRestantes - b.diasRestantes);
+};
+
+// Nova função para obter todos os projetos de forma hierárquica
+export const getAllProjetos = (): Projeto[] => {
+  const allProjetos: Projeto[] = [];
+  
+  mockEmpreendedores.forEach(empreendedor => {
+    empreendedor.empreendimentos.forEach(empreendimento => {
+      allProjetos.push(...empreendimento.projetos);
+    });
+  });
+  
+  return allProjetos;
 };
