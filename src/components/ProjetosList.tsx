@@ -3,12 +3,14 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Plus, FolderOpen, Calendar, AlertTriangle, CheckCircle } from 'lucide-react';
-import { mockProjetos, mockEmpreendimentos, mockEmpreendedores } from '@/utils/mockData';
-import { calculateDaysUntilExpiry } from '@/utils/alertUtils';
+import { mockEmpreendedores } from '@/utils/mockData';
+import { getAllProjetos, calculateDaysUntilExpiry } from '@/utils/alertUtils';
 import { format } from 'date-fns';
 import { ptBR } from 'date-fns/locale';
 
 export function ProjetosList() {
+  const allProjetos = getAllProjetos();
+
   const getStatusBadge = (days: number) => {
     if (days < 0) {
       return <Badge variant="destructive">Vencido</Badge>;
@@ -35,12 +37,13 @@ export function ProjetosList() {
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-        {mockProjetos.map((projeto) => {
-          const empreendimento = mockEmpreendimentos.find(
-            e => e.id === projeto.empreendimentoId
+        {allProjetos.map((projeto) => {
+          // Busca hierárquica para encontrar empreendedor e empreendimento
+          const empreendedor = mockEmpreendedores.find(emp => 
+            emp.empreendimentos.some(empr => empr.id === projeto.empreendimentoId)
           );
-          const empreendedor = mockEmpreendedores.find(
-            e => e.id === empreendimento?.empreendedorId
+          const empreendimento = empreendedor?.empreendimentos.find(
+            empr => empr.id === projeto.empreendimentoId
           );
           
           const diasLicenca = calculateDaysUntilExpiry(projeto.validade_licenca);
