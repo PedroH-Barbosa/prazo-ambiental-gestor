@@ -1,5 +1,5 @@
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Layout } from '@/components/Layout';
 import { Dashboard } from '@/components/Dashboard';
 import { EmpreendedoresList } from '@/components/EmpreendedoresList';
@@ -10,21 +10,28 @@ import { ConfiguracoesList } from '@/components/ConfiguracoesList';
 export default function Index() {
   const [activeSection, setActiveSection] = useState('dashboard');
 
-  // Listen for hash changes to update active section
-  if (typeof window !== 'undefined') {
-    window.addEventListener('hashchange', () => {
+  useEffect(() => {
+    // Set initial section based on hash
+    const initialHash = window.location.hash.slice(1);
+    if (initialHash) {
+      setActiveSection(initialHash);
+    }
+
+    // Listen for hash changes to update active section
+    const handleHashChange = () => {
       const hash = window.location.hash.slice(1);
       if (hash) {
         setActiveSection(hash);
       }
-    });
+    };
 
-    // Set initial section based on hash
-    const initialHash = window.location.hash.slice(1);
-    if (initialHash && activeSection === 'dashboard') {
-      setActiveSection(initialHash);
-    }
-  }
+    window.addEventListener('hashchange', handleHashChange);
+
+    // Cleanup event listener on component unmount
+    return () => {
+      window.removeEventListener('hashchange', handleHashChange);
+    };
+  }, []);
 
   const renderContent = () => {
     switch (activeSection) {
