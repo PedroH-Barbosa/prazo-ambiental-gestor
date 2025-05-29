@@ -1,14 +1,52 @@
-// Update this page (the content is just a fallback if you fail to update the page)
 
-const Index = () => {
+import { useState } from 'react';
+import { Layout } from '@/components/Layout';
+import { Dashboard } from '@/components/Dashboard';
+import { EmpreendedoresList } from '@/components/EmpreendedoresList';
+import { EmpreendimentosList } from '@/components/EmpreendimentosList';
+import { ProjetosList } from '@/components/ProjetosList';
+import { ConfiguracoesList } from '@/components/ConfiguracoesList';
+
+export default function Index() {
+  const [activeSection, setActiveSection] = useState('dashboard');
+
+  // Listen for hash changes to update active section
+  if (typeof window !== 'undefined') {
+    window.addEventListener('hashchange', () => {
+      const hash = window.location.hash.slice(1);
+      if (hash) {
+        setActiveSection(hash);
+      }
+    });
+
+    // Set initial section based on hash
+    const initialHash = window.location.hash.slice(1);
+    if (initialHash && activeSection === 'dashboard') {
+      setActiveSection(initialHash);
+    }
+  }
+
+  const renderContent = () => {
+    switch (activeSection) {
+      case 'alertas':
+      case 'dashboard':
+        return <Dashboard />;
+      case 'empreendedores':
+        return <EmpreendedoresList />;
+      case 'empreendimentos':
+        return <EmpreendimentosList />;
+      case 'projetos':
+        return <ProjetosList />;
+      case 'configuracoes':
+        return <ConfiguracoesList />;
+      default:
+        return <Dashboard />;
+    }
+  };
+
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gray-100">
-      <div className="text-center">
-        <h1 className="text-4xl font-bold mb-4">Welcome to Your Blank App</h1>
-        <p className="text-xl text-gray-600">Start building your amazing project here!</p>
-      </div>
-    </div>
+    <Layout>
+      {renderContent()}
+    </Layout>
   );
-};
-
-export default Index;
+}
