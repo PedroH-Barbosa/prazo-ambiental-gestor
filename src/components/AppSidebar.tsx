@@ -20,11 +20,6 @@ const menuItems = [
     url: '#dashboard'
   },
   {
-    title: 'Alertas',
-    icon: AlertTriangle,
-    url: '#alertas'
-  },
-  {
     title: 'Empreendedores',
     icon: Users,
     url: '#empreendedores'

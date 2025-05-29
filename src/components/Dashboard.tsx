@@ -1,6 +1,6 @@
 
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { AlertTriangle, Building, Users, FolderOpen, Calendar } from 'lucide-react';
+import { AlertTriangle, Building, Users, FolderOpen, Calendar, Search } from 'lucide-react';
 import { generateAlerts } from '@/utils/alertUtils';
 import { mockProjetos, defaultAlertConfig } from '@/utils/mockData';
 import { format } from 'date-fns';
@@ -19,6 +19,21 @@ export function Dashboard() {
         <h2 className="text-3xl font-bold text-gray-900">Dashboard</h2>
         <p className="text-gray-600 mt-1">Visão geral dos prazos ambientais</p>
       </div>
+
+      {/* Search bar */}
+
+      <div className="flex items-center border border-gray-300 rounded-full px-4 py-2 w-full max-w-md">
+        <Search className="text-gray-500 mr-2" />
+        <input
+          type="text"
+          placeholder="Buscar..."
+          className="w-full bg-transparent focus:outline-none"
+        />
+        <button className="ml-2 px-3 py-1 bg-transparent text-black rounded-full hover:bg-blue-400">
+          <Search className="h-5 w-5 text-black-600" />
+        </button>
+      </div>
+
 
       {/* Stats Cards */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
@@ -69,7 +84,7 @@ export function Dashboard() {
           <CardContent>
             <div className="text-2xl font-bold text-purple-600">{totalProjetos}</div>
             <p className="text-xs text-gray-600">
-              Com licenças ativas
+
             </p>
           </CardContent>
         </Card>
@@ -98,13 +113,12 @@ export function Dashboard() {
               {alerts.map((alert) => (
                 <div
                   key={alert.id}
-                  className={`p-4 rounded-lg border-l-4 ${
-                    alert.diasRestantes <= 7
-                      ? 'border-l-red-500 bg-red-50'
-                      : alert.diasRestantes <= 15
+                  className={`p-4 rounded-lg border-l-4 ${alert.diasRestantes <= 7
+                    ? 'border-l-red-500 bg-red-50'
+                    : alert.diasRestantes <= 15
                       ? 'border-l-yellow-500 bg-yellow-50'
                       : 'border-l-orange-500 bg-orange-50'
-                  }`}
+                    }`}
                 >
                   <div className="flex justify-between items-start">
                     <div className="flex-1">
@@ -124,13 +138,12 @@ export function Dashboard() {
                       )}
                     </div>
                     <div className="text-right">
-                      <div className={`text-lg font-bold ${
-                        alert.diasRestantes <= 7
-                          ? 'text-red-600'
-                          : alert.diasRestantes <= 15
+                      <div className={`text-lg font-bold ${alert.diasRestantes <= 7
+                        ? 'text-red-600'
+                        : alert.diasRestantes <= 15
                           ? 'text-yellow-600'
                           : 'text-orange-600'
-                      }`}>
+                        }`}>
                         {alert.diasRestantes} dias
                       </div>
                       <p className="text-xs text-gray-500">
