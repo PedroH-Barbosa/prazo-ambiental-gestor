@@ -2,10 +2,10 @@
 import { useState } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { Plus, User, Phone, MapPin, Edit, Trash2 } from 'lucide-react';
+import { Plus, User, Phone, MapPin, Edit, Trash2, Search } from 'lucide-react';
 import { useData } from '@/contexts/DataContext';
 import { EmpreendedorForm } from '@/components/forms/EmpreendedorForm';
-import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from '@/components/ui/alert-dialog';
+import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger,  } from '@/components/ui/alert-dialog';
 import { useToast } from '@/hooks/use-toast';
 
 export function EmpreendedoresList() {
@@ -43,6 +43,20 @@ export function EmpreendedoresList() {
           <Plus className="h-4 w-4 mr-2" />
           Novo Empreendedor
         </Button>
+      </div>
+
+      {/* Search bar */}
+
+      <div className="flex items-center border border-gray-300 rounded-full px-4 py-2 w-full max-w-md">
+        <Search className="text-gray-500 mr-2" />
+        <input
+          type="text"
+          placeholder="Buscar..."
+          className="w-full bg-transparent focus:outline-none"
+        />
+        <button className="ml-2 px-3 py-1 bg-transparent text-black rounded-full hover:bg-blue-400">
+          <Search className="h-5 w-5 text-black-600" />
+        </button>
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">

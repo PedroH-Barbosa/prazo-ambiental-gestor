@@ -20,19 +20,7 @@ export function Dashboard() {
         <p className="text-gray-600 mt-1">Visão geral dos prazos ambientais</p>
       </div>
 
-      {/* Search bar */}
-
-      <div className="flex items-center border border-gray-300 rounded-full px-4 py-2 w-full max-w-md">
-        <Search className="text-gray-500 mr-2" />
-        <input
-          type="text"
-          placeholder="Buscar..."
-          className="w-full bg-transparent focus:outline-none"
-        />
-        <button className="ml-2 px-3 py-1 bg-transparent text-black rounded-full hover:bg-blue-400">
-          <Search className="h-5 w-5 text-black-600" />
-        </button>
-      </div>
+      
 
 
       {/* Stats Cards */}
