@@ -1,15 +1,35 @@
 
+import { useState } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
-import { Plus, FolderOpen, Calendar, AlertTriangle, CheckCircle } from 'lucide-react';
-import { mockEmpreendedores } from '@/utils/mockData';
-import { getAllProjetos, calculateDaysUntilExpiry } from '@/utils/alertUtils';
+import { Plus, FolderOpen, Calendar, Edit, Trash2 } from 'lucide-react';
+import { useData } from '@/contexts/DataContext';
+import { ProjetoForm } from '@/components/forms/ProjetoForm';
+import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from '@/components/ui/alert-dialog';
+import { calculateDaysUntilExpiry } from '@/utils/alertUtils';
 import { format } from 'date-fns';
 import { ptBR } from 'date-fns/locale';
+import { useToast } from '@/hooks/use-toast';
 
 export function ProjetosList() {
-  const allProjetos = getAllProjetos();
+  const { empreendedores, deleteProjeto } = useData();
+  const { toast } = useToast();
+  const [formOpen, setFormOpen] = useState(false);
+  const [editingProjeto, setEditingProjeto] = useState(null);
+
+  // Obter todos os projetos com informações hierárquicas
+  const allProjetos = empreendedores.flatMap(empreendedor =>
+    empreendedor.empreendimentos.flatMap(empreendimento =>
+      empreendimento.projetos.map(projeto => ({
+        ...projeto,
+        empreendimento: {
+          ...empreendimento,
+          empreendedor
+        }
+      }))
+    )
+  );
 
   const getStatusBadge = (days: number) => {
     if (days < 0) {
@@ -23,6 +43,24 @@ export function ProjetosList() {
     }
   };
 
+  const handleEdit = (projeto) => {
+    setEditingProjeto(projeto);
+    setFormOpen(true);
+  };
+
+  const handleDelete = (id: string, licenca: string) => {
+    deleteProjeto(id);
+    toast({
+      title: "Sucesso",
+      description: `Projeto ${licenca} foi deletado.`
+    });
+  };
+
+  const handleNewProjeto = () => {
+    setEditingProjeto(null);
+    setFormOpen(true);
+  };
+
   return (
     <div className="space-y-6">
       <div className="flex justify-between items-center">
@@ -30,7 +68,7 @@ export function ProjetosList() {
           <h2 className="text-3xl font-bold text-gray-900">Projetos</h2>
           <p className="text-gray-600 mt-1">Monitoramento de licenças e condicionantes</p>
         </div>
-        <Button className="bg-green-600 hover:bg-green-700">
+        <Button onClick={handleNewProjeto} className="bg-green-600 hover:bg-green-700">
           <Plus className="h-4 w-4 mr-2" />
           Novo Projeto
         </Button>
@@ -38,27 +76,55 @@ export function ProjetosList() {
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
         {allProjetos.map((projeto) => {
-          // Busca hierárquica para encontrar empreendedor e empreendimento
-          const empreendedor = mockEmpreendedores.find(emp => 
-            emp.empreendimentos.some(empr => empr.id === projeto.empreendimentoId)
-          );
-          const empreendimento = empreendedor?.empreendimentos.find(
-            empr => empr.id === projeto.empreendimentoId
-          );
-          
           const diasLicenca = calculateDaysUntilExpiry(projeto.validade_licenca);
           const diasCondicionantes = calculateDaysUntilExpiry(projeto.validade_condicionantes);
           
           return (
             <Card key={projeto.id} className="hover:shadow-lg transition-shadow">
               <CardHeader>
-                <CardTitle className="flex items-center gap-2">
-                  <FolderOpen className="h-5 w-5 text-purple-600" />
-                  {projeto.licenca}
+                <CardTitle className="flex items-center justify-between">
+                  <div className="flex items-center gap-2">
+                    <FolderOpen className="h-5 w-5 text-purple-600" />
+                    {projeto.licenca}
+                  </div>
+                  <div className="flex gap-1">
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      onClick={() => handleEdit(projeto)}
+                    >
+                      <Edit className="h-4 w-4" />
+                    </Button>
+                    <AlertDialog>
+                      <AlertDialogTrigger asChild>
+                        <Button variant="ghost" size="sm">
+                          <Trash2 className="h-4 w-4 text-red-600" />
+                        </Button>
+                      </AlertDialogTrigger>
+                      <AlertDialogContent>
+                        <AlertDialogHeader>
+                          <AlertDialogTitle>Confirmar Exclusão</AlertDialogTitle>
+                          <AlertDialogDescription>
+                            Tem certeza que deseja deletar o projeto {projeto.licenca}? 
+                            Esta ação não pode ser desfeita.
+                          </AlertDialogDescription>
+                        </AlertDialogHeader>
+                        <AlertDialogFooter>
+                          <AlertDialogCancel>Cancelar</AlertDialogCancel>
+                          <AlertDialogAction
+                            onClick={() => handleDelete(projeto.id, projeto.licenca)}
+                            className="bg-red-600 hover:bg-red-700"
+                          >
+                            Deletar
+                          </AlertDialogAction>
+                        </AlertDialogFooter>
+                      </AlertDialogContent>
+                    </AlertDialog>
+                  </div>
                 </CardTitle>
                 <div className="text-sm text-gray-600">
-                  <div><strong>Empreendedor:</strong> {empreendedor?.nome}</div>
-                  <div><strong>Empreendimento:</strong> {empreendimento?.endereco}</div>
+                  <div><strong>Empreendedor:</strong> {projeto.empreendimento.empreendedor.nome}</div>
+                  <div><strong>Empreendimento:</strong> {projeto.empreendimento.endereco}</div>
                 </div>
               </CardHeader>
               <CardContent className="space-y-4">
@@ -111,6 +177,13 @@ export function ProjetosList() {
           );
         })}
       </div>
+
+      <ProjetoForm
+        open={formOpen}
+        onOpenChange={setFormOpen}
+        projeto={editingProjeto}
+        mode={editingProjeto ? 'edit' : 'create'}
+      />
     </div>
   );
 }

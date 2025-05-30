@@ -6,6 +6,7 @@ import { EmpreendedoresList } from '@/components/EmpreendedoresList';
 import { EmpreendimentosList } from '@/components/EmpreendimentosList';
 import { ProjetosList } from '@/components/ProjetosList';
 import { ConfiguracoesList } from '@/components/ConfiguracoesList';
+import { DataProvider } from '@/contexts/DataContext';
 
 export default function Index() {
   const [activeSection, setActiveSection] = useState('dashboard');
@@ -52,8 +53,10 @@ export default function Index() {
   };
 
   return (
-    <Layout>
-      {renderContent()}
-    </Layout>
+    <DataProvider>
+      <Layout>
+        {renderContent()}
+      </Layout>
+    </DataProvider>
   );
 }
