@@ -1,0 +1,55 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
+// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+model Proprietario {
+  id          Int              @id @default(autoincrement())
+  nome        String
+  cpf         String?
+  enderecoRua String?
+  enderecoNumero String?
+  cep         String?
+  municipio   String?
+  contato     String?
+  empreendimentos Empreendimento[]
+}
+
+model Empreendimento {
+  id                     Int         @id @default(autoincrement())
+  endereco               String
+  tituloDeDominioOuPosse String?
+  numeroMatricula        String?
+  livroFicha             String?
+  cartorioRegistro       String?
+  areaTotalHa            Float?
+  municipio              String?
+  estado                 String?
+  empreendedorId         Int
+  empreendedor           Proprietario @relation(fields: [empreendedorId], references: [id])
+  projetos               Projeto[]
+}
+
+model Projeto {
+  id                     Int       @id @default(autoincrement())
+  licenca                String
+  validadeLicenca        DateTime?
+  condicionantes         String?
+  validadeCondicionantes DateTime?
+  orgaoAmbiental         String?
+  numeroProcesso         String?
+  numeroRequerimento     String?
+  empreendimentoId       Int
+  empreendimento         Empreendimento @relation(fields: [empreendimentoId], references: [id])
+}
+
